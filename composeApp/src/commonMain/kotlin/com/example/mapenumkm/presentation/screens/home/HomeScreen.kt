@@ -31,6 +31,7 @@ fun HomeScreen(
     onNavigateToDetail: (Long) -> Unit,
     onNavigateToAI: () -> Unit,
     onNavigateToProductList: () -> Unit,
+    onNavigateToHistory: () -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -73,10 +74,11 @@ fun HomeScreen(
         },
         bottomBar = {
             DashboardBottomNavigation(
+                selectedItem = 0,
                 onDashboardClick = {},
                 onProdukClick = onNavigateToProductList,
                 onTransaksiClick = {},
-                onRiwayatClick = {},
+                onRiwayatClick = onNavigateToHistory,
                 onLaporanClick = {}
             )
         }
@@ -364,6 +366,7 @@ fun StockWarningItem(name: String, stockRemaining: Int, onClick: () -> Unit) {
 
 @Composable
 fun DashboardBottomNavigation(
+    selectedItem: Int = 0,
     onDashboardClick: () -> Unit,
     onProdukClick: () -> Unit,
     onTransaksiClick: () -> Unit,
@@ -375,7 +378,7 @@ fun DashboardBottomNavigation(
         tonalElevation = 8.dp
     ) {
         NavigationBarItem(
-            selected = true,
+            selected = selectedItem == 0,
             onClick = onDashboardClick,
             icon = { Icon(Icons.Default.Home, contentDescription = null) },
             label = { Text("Dashboard", fontSize = 10.sp) },
@@ -388,25 +391,25 @@ fun DashboardBottomNavigation(
             )
         )
         NavigationBarItem(
-            selected = false,
+            selected = selectedItem == 1,
             onClick = onProdukClick,
             icon = { Icon(Icons.Outlined.Inventory2, contentDescription = null) },
             label = { Text("Produk", fontSize = 10.sp) }
         )
         NavigationBarItem(
-            selected = false,
+            selected = selectedItem == 2,
             onClick = onTransaksiClick,
             icon = { Icon(Icons.Default.Receipt, contentDescription = null) },
             label = { Text("Transaksi", fontSize = 10.sp) }
         )
         NavigationBarItem(
-            selected = false,
+            selected = selectedItem == 3,
             onClick = onRiwayatClick,
             icon = { Icon(Icons.Outlined.History, contentDescription = null) },
             label = { Text("Riwayat", fontSize = 10.sp) }
         )
         NavigationBarItem(
-            selected = false,
+            selected = selectedItem == 4,
             onClick = onLaporanClick,
             icon = { Icon(Icons.Outlined.BarChart, contentDescription = null) },
             label = { Text("Laporan", fontSize = 10.sp) }

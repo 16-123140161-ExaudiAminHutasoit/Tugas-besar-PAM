@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mapenumkm.domain.model.Note
 import com.example.mapenumkm.domain.model.NoteCategory
 import com.example.mapenumkm.presentation.components.LoadingIndicator
+import com.example.mapenumkm.presentation.screens.home.DashboardBottomNavigation
 import com.example.mapenumkm.presentation.screens.home.HomeUiState
 import com.example.mapenumkm.presentation.screens.home.HomeViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -35,6 +36,7 @@ fun ProductListScreen(
     onNavigateToAddProduct: () -> Unit,
     onNavigateToEditProduct: (Long) -> Unit,
     onNavigateToDashboard: () -> Unit,
+    onNavigateToHistory: () -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -69,11 +71,12 @@ fun ProductListScreen(
             )
         },
         bottomBar = {
-            ProductBottomNavigation(
+            DashboardBottomNavigation(
+                selectedItem = 1,
                 onDashboardClick = onNavigateToDashboard,
                 onProdukClick = {},
                 onTransaksiClick = {},
-                onRiwayatClick = {},
+                onRiwayatClick = onNavigateToHistory,
                 onLaporanClick = {}
             )
         }
@@ -273,59 +276,5 @@ fun ProductManageItem(
             }
         }
         HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
-    }
-}
-
-@Composable
-fun ProductBottomNavigation(
-    onDashboardClick: () -> Unit,
-    onProdukClick: () -> Unit,
-    onTransaksiClick: () -> Unit,
-    onRiwayatClick: () -> Unit,
-    onLaporanClick: () -> Unit
-) {
-    NavigationBar(
-        containerColor = Color.White,
-        tonalElevation = 8.dp
-    ) {
-        NavigationBarItem(
-            selected = false,
-            onClick = onDashboardClick,
-            icon = { Icon(Icons.Default.Home, contentDescription = null) },
-            label = { Text("Dashboard", fontSize = 10.sp) },
-            colors = NavigationBarItemDefaults.colors(
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray
-            )
-        )
-        NavigationBarItem(
-            selected = true,
-            onClick = onProdukClick,
-            icon = { Icon(Icons.Default.Inventory2, contentDescription = null) },
-            label = { Text("Produk", fontSize = 10.sp) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color(0xFF16A34A),
-                selectedTextColor = Color(0xFF16A34A),
-                indicatorColor = Color(0xFFDCFCE7)
-            )
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = onTransaksiClick,
-            icon = { Icon(Icons.Default.Receipt, contentDescription = null) },
-            label = { Text("Transaksi", fontSize = 10.sp) }
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = onRiwayatClick,
-            icon = { Icon(Icons.Outlined.History, contentDescription = null) },
-            label = { Text("Riwayat", fontSize = 10.sp) }
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = onLaporanClick,
-            icon = { Icon(Icons.Outlined.BarChart, contentDescription = null) },
-            label = { Text("Laporan", fontSize = 10.sp) }
-        )
     }
 }

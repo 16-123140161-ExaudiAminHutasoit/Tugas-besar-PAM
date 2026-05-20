@@ -14,6 +14,9 @@ sealed interface Route {
     data object ProductList : Route
 
     @Serializable
+    data object History : Route
+
+    @Serializable
     data class AddNote(
         val noteId: Long? = null
     ) : Route
