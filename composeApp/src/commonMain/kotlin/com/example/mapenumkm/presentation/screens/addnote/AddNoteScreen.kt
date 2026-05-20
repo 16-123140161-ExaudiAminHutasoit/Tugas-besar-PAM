@@ -282,31 +282,25 @@ private fun CategoryDropdown(
             colors = customTextFieldColors()
         )
         
-        MaterialTheme(
-            shapes = MaterialTheme.shapes.copy(extraSmall = RoundedCornerShape(16.dp))
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(MaterialTheme.colorScheme.surface)
         ) {
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surface)
-                    .shadow(12.dp, RoundedCornerShape(16.dp))
-            ) {
-                NoteCategory.entries.forEach { category ->
-                    DropdownMenuItem(
-                        text = { 
-                            Text(
-                                category.displayName,
-                                style = MaterialTheme.typography.bodyLarge
-                            ) 
-                        },
-                        onClick = {
-                            onCategorySelected(category)
-                            expanded = false
-                        },
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 12.dp)
-                    )
-                }
+            NoteCategory.entries.forEach { category ->
+                DropdownMenuItem(
+                    text = { 
+                        Text(
+                            category.displayName,
+                            style = MaterialTheme.typography.bodyLarge
+                        ) 
+                    },
+                    onClick = {
+                        onCategorySelected(category)
+                        expanded = false
+                    },
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 12.dp)
+                )
             }
         }
     }
