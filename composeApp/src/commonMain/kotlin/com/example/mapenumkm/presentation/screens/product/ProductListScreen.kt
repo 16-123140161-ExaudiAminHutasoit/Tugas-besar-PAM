@@ -37,6 +37,7 @@ fun ProductListScreen(
     onNavigateToEditProduct: (Long) -> Unit,
     onNavigateToDashboard: () -> Unit,
     onNavigateToHistory: () -> Unit,
+    onNavigateToReport: () -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -77,7 +78,7 @@ fun ProductListScreen(
                 onProdukClick = {},
                 onTransaksiClick = {},
                 onRiwayatClick = onNavigateToHistory,
-                onLaporanClick = {}
+                onLaporanClick = onNavigateToReport
             )
         }
     ) { paddingValues ->

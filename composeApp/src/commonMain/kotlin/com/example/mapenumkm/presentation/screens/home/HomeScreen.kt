@@ -32,6 +32,7 @@ fun HomeScreen(
     onNavigateToAI: () -> Unit,
     onNavigateToProductList: () -> Unit,
     onNavigateToHistory: () -> Unit,
+    onNavigateToReport: () -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -79,7 +80,7 @@ fun HomeScreen(
                 onProdukClick = onNavigateToProductList,
                 onTransaksiClick = {},
                 onRiwayatClick = onNavigateToHistory,
-                onLaporanClick = {}
+                onLaporanClick = onNavigateToReport
             )
         }
     ) { paddingValues ->

@@ -11,6 +11,7 @@ import com.example.mapenumkm.presentation.screens.addnote.AddNoteScreen
 import com.example.mapenumkm.presentation.screens.ai.AIAssistantScreen
 import com.example.mapenumkm.presentation.screens.detail.NoteDetailScreen
 import com.example.mapenumkm.presentation.screens.history.HistoryScreen
+import com.example.mapenumkm.presentation.screens.report.ReportScreen
 import com.example.mapenumkm.presentation.screens.home.HomeScreen
 import com.example.mapenumkm.presentation.screens.login.LoginScreen
 import com.example.mapenumkm.presentation.screens.product.ProductListScreen
@@ -58,6 +59,11 @@ fun AppNavHost(
                     navController.navigate(Route.History) {
                         launchSingleTop = true
                     }
+                },
+                onNavigateToReport = {
+                    navController.navigate(Route.Report) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -76,6 +82,11 @@ fun AppNavHost(
                 },
                 onNavigateToHistory = {
                     navController.navigate(Route.History) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToReport = {
+                    navController.navigate(Route.Report) {
                         launchSingleTop = true
                     }
                 }
@@ -97,7 +108,34 @@ fun AppNavHost(
                     }
                 },
                 onNavigateToTransaksi = {},
-                onNavigateToLaporan = {}
+                onNavigateToLaporan = {
+                    navController.navigate(Route.Report) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable<Route.Report> {
+            ReportScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToDashboard = {
+                    navController.navigate(Route.Home) {
+                        popUpTo(Route.Home) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToProduct = {
+                    navController.navigate(Route.ProductList) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToTransaksi = {},
+                onNavigateToRiwayat = {
+                    navController.navigate(Route.History) {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
 
