@@ -22,14 +22,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mapenumkm.presentation.components.LoadingIndicator
 import com.example.mapenumkm.presentation.theme.PurpleAccent
+import mapenumkm.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onNavigateToAddNote: () -> Unit,
     onNavigateToDetail: (Long) -> Unit,
-    onNavigateToAI: () -> Unit,
     onNavigateToProductList: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToReport: () -> Unit,
@@ -295,6 +295,13 @@ fun SectionHeader(title: String, onLihatSemua: () -> Unit) {
 
 @Composable
 fun ProductItem(name: String, soldCount: Int, price: Double, onClick: () -> Unit) {
+    val imageRes = when {
+        name.contains("Nasi goreng", ignoreCase = true) -> Res.drawable.nasi_goreng
+        name.contains("Es teler", ignoreCase = true) -> Res.drawable.es_teler
+        name.contains("Es teh", ignoreCase = true) -> Res.drawable.es_teh
+        else -> null
+    }
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -314,7 +321,16 @@ fun ProductItem(name: String, soldCount: Int, price: Double, onClick: () -> Unit
                         .background(Color(0xFFF3F4F6)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Image, contentDescription = null, tint = Color.LightGray)
+                    if (imageRes != null) {
+                        androidx.compose.foundation.Image(
+                            painter = painterResource(imageRes),
+                            contentDescription = name,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        )
+                    } else {
+                        Icon(Icons.Default.Image, contentDescription = null, tint = Color.LightGray)
+                    }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f)) {

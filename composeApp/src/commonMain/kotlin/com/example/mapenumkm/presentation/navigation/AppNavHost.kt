@@ -43,12 +43,8 @@ fun AppNavHost(
 
         composable<Route.Home> {
             HomeScreen(
-                onNavigateToAddNote = { navigationActions.navigateToAddNote() },
                 onNavigateToDetail = { noteId ->
                     navigationActions.navigateToNoteDetail(noteId)
-                },
-                onNavigateToAI = {
-                    navigationActions.navigateToAIAssistant()
                 },
                 onNavigateToProductList = {
                     navController.navigate(Route.ProductList) {

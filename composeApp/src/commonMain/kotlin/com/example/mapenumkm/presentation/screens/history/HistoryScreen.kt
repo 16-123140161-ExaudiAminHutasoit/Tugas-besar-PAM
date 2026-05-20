@@ -26,7 +26,7 @@ fun HistoryScreen(
     onNavigateToDashboard: () -> Unit,
     onNavigateToProduct: () -> Unit,
     onNavigateToTransaksi: () -> Unit,
-    onNavigateToLaporan: () -> Unit
+    onNavigateToLaporan: () -> Unit,
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Semua", "Hari ini", "Minggu ini", "Bulan ini")

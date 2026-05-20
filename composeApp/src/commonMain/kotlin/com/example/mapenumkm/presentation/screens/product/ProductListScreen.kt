@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,6 +27,8 @@ import com.example.mapenumkm.presentation.components.LoadingIndicator
 import com.example.mapenumkm.presentation.screens.home.DashboardBottomNavigation
 import com.example.mapenumkm.presentation.screens.home.HomeUiState
 import com.example.mapenumkm.presentation.screens.home.HomeViewModel
+import mapenumkm.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -186,9 +187,8 @@ fun ProductListScreen(
                     ) {
                         items(state.notes) { product ->
                             ProductManageItem(
-                                product = product,
-                                onEditClick = { onNavigateToEditProduct(product.id) }
-                            )
+                                product = product
+                            ) { onNavigateToEditProduct(product.id) }
                         }
                     }
                 }
@@ -212,6 +212,13 @@ fun ProductManageItem(
     product: Note,
     onEditClick: () -> Unit
 ) {
+    val imageRes = when {
+        product.title.contains("nasi goreng", ignoreCase = true) -> Res.drawable.nasi_goreng
+        product.title.contains("es teler", ignoreCase = true) -> Res.drawable.es_teler
+        product.title.contains("es teh", ignoreCase = true) -> Res.drawable.es_teh
+        else -> null
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -221,7 +228,7 @@ fun ProductManageItem(
             modifier = Modifier.padding(vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Placeholder Image
+            // Product Image
             Box(
                 modifier = Modifier
                     .size(72.dp)
@@ -229,16 +236,25 @@ fun ProductManageItem(
                     .background(Color(0xFFF3F4F6)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = when(product.category) {
-                        NoteCategory.DRINK -> Icons.Default.LocalCafe
-                        NoteCategory.FOOD -> Icons.Default.Fastfood
-                        else -> Icons.Default.Image
-                    },
-                    contentDescription = null,
-                    tint = Color.LightGray,
-                    modifier = Modifier.size(32.dp)
-                )
+                if (imageRes != null) {
+                    androidx.compose.foundation.Image(
+                        painter = painterResource(imageRes),
+                        contentDescription = product.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = when(product.category) {
+                            NoteCategory.DRINK -> Icons.Default.LocalCafe
+                            NoteCategory.FOOD -> Icons.Default.Fastfood
+                            else -> Icons.Default.Image
+                        },
+                        contentDescription = null,
+                        tint = Color.LightGray,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
             }
             
             Spacer(modifier = Modifier.width(16.dp))

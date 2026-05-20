@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -33,7 +33,7 @@ fun ReportScreen(
     onNavigateToDashboard: () -> Unit,
     onNavigateToProduct: () -> Unit,
     onNavigateToTransaksi: () -> Unit,
-    onNavigateToRiwayat: () -> Unit
+    onNavigateToRiwayat: () -> Unit,
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Harian", "Mingguan", "Bulanan")
