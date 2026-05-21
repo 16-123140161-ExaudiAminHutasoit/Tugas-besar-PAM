@@ -1,6 +1,4 @@
-Berikut README yang sudah disesuaikan dengan konsep **MaPen UMKM**, fitur yang kamu tulis, dan tambahan halaman **Login**.
 
-Silakan salin ke file `README.md`.
 
 ````markdown
 # 🛒 MaPen UMKM  
@@ -214,11 +212,11 @@ Langkah menjalankan project:
 git clone <repository-url>
 ```
 
-2. Buka project menggunakan Android Studio.
+1. Buka project menggunakan Android Studio.
 
-3. Tunggu proses Gradle Sync selesai.
+2. Tunggu proses Gradle Sync selesai.
 
-4. Jalankan aplikasi pada emulator atau perangkat Android.
+3. Jalankan aplikasi pada emulator atau perangkat Android.
 
 
 ---

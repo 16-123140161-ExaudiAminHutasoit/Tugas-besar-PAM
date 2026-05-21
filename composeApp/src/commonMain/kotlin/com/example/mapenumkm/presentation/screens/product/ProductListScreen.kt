@@ -17,12 +17,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.example.mapenumkm.domain.model.Note
 import com.example.mapenumkm.domain.model.NoteCategory
+import com.example.mapenumkm.domain.usecase.NoteSortBy
 import com.example.mapenumkm.presentation.components.LoadingIndicator
 import com.example.mapenumkm.presentation.screens.home.DashboardBottomNavigation
 import com.example.mapenumkm.presentation.screens.home.HomeUiState
@@ -45,6 +48,9 @@ fun ProductListScreen(
     var searchQuery by remember { mutableStateOf("") }
     val categories = listOf("Semua") + NoteCategory.entries.map { it.displayName }
     var selectedCategoryIndex by remember { mutableStateOf(0) }
+    
+    var showSortSheet by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
 
     Scaffold(
         topBar = {
@@ -131,10 +137,15 @@ fun ProductListScreen(
                     modifier = Modifier
                         .size(52.dp)
                         .border(1.dp, Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-                        .clickable { /* Filter */ },
+                        .clickable { showSortSheet = true },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.FilterList, contentDescription = "Filter", tint = Color.Gray)
+                    Icon(
+                        imageVector = Icons.Default.FilterList, 
+                        contentDescription = "Urutkan", 
+                        tint = if (uiState is HomeUiState.Success && (uiState as HomeUiState.Success).sortBy != NoteSortBy.UPDATED_DESC) 
+                            Color(0xFF16A34A) else Color.Gray
+                    )
                 }
             }
 
@@ -181,21 +192,23 @@ fun ProductListScreen(
             when (val state = uiState) {
                 is HomeUiState.Loading -> LoadingIndicator()
                 is HomeUiState.Success -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 20.dp)
-                    ) {
-                        items(state.notes) { product ->
-                            ProductManageItem(
-                                product = product
-                            ) { onNavigateToEditProduct(product.id) }
+                    if (state.notes.isEmpty()) {
+                        EmptyProductState(query = state.query)
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 20.dp)
+                        ) {
+                            items(state.notes) { product ->
+                                ProductManageItem(
+                                    product = product
+                                ) { onNavigateToEditProduct(product.id) }
+                            }
                         }
                     }
                 }
                 is HomeUiState.Empty -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Produk tidak ditemukan", color = Color.Gray)
-                    }
+                    EmptyProductState(query = state.query)
                 }
                 is HomeUiState.Error -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -204,6 +217,83 @@ fun ProductListScreen(
                 }
             }
         }
+
+        // Sort Bottom Sheet
+        if (showSortSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showSortSheet = false },
+                sheetState = sheetState,
+                containerColor = Color.White
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 40.dp)
+                ) {
+                    Text(
+                        text = "Urutkan Berdasarkan",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
+                    )
+                    
+                    val currentSort = (uiState as? HomeUiState.Success)?.sortBy ?: NoteSortBy.UPDATED_DESC
+                    
+                    NoteSortBy.entries.forEach { sortBy ->
+                        val isSelected = currentSort == sortBy
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    viewModel.onSortByChanged(sortBy)
+                                    showSortSheet = false
+                                }
+                                .padding(horizontal = 20.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = sortBy.displayName,
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    color = if (isSelected) Color(0xFF16A34A) else Color.Black,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                )
+                            )
+                            if (isSelected) {
+                                Icon(Icons.Default.Check, contentDescription = null, tint = Color(0xFF16A34A))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EmptyProductState(query: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.SearchOff,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = Color.LightGray
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = if (query.isEmpty()) "Belum ada produk" else "Produk tidak ditemukan",
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+        )
+        Text(
+            text = if (query.isEmpty()) "Mulai tambahkan produk jualan Anda" else "Coba cari dengan kata kunci lain",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Gray
+        )
     }
 }
 
@@ -214,8 +304,8 @@ fun ProductManageItem(
 ) {
     val imageRes = when {
         product.title.contains("nasi goreng", ignoreCase = true) -> Res.drawable.nasi_goreng
-        product.title.contains("es teler", ignoreCase = true) -> Res.drawable.es_teler
-        product.title.contains("es teh", ignoreCase = true) -> Res.drawable.es_teh
+        product.title.contains("Es teler", ignoreCase = true) -> Res.drawable.Es_teler
+        product.title.contains("Es teh", ignoreCase = true) -> Res.drawable.Es_teh
         else -> null
     }
 
@@ -236,12 +326,19 @@ fun ProductManageItem(
                     .background(Color(0xFFF3F4F6)),
                 contentAlignment = Alignment.Center
             ) {
-                if (imageRes != null) {
+                if (product.imageUri != null) {
+                    AsyncImage(
+                        model = product.imageUri,
+                        contentDescription = product.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else if (imageRes != null) {
                     androidx.compose.foundation.Image(
                         painter = painterResource(imageRes),
                         contentDescription = product.title,
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        contentScale = ContentScale.Crop
                     )
                 } else {
                     Icon(

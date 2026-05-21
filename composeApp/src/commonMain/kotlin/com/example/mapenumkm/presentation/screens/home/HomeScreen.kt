@@ -16,10 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
+import com.example.mapenumkm.domain.model.NoteCategory
 import com.example.mapenumkm.presentation.components.LoadingIndicator
 import com.example.mapenumkm.presentation.theme.PurpleAccent
 import mapenumkm.composeapp.generated.resources.*
@@ -136,21 +139,22 @@ fun HomeScreen(
 
             // Stats Grid 2x2
             item {
+                val successState = uiState as? HomeUiState.Success
                 Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         StatCard(
                             modifier = Modifier.weight(1f),
-                            title = "Total Penjualan",
-                            value = "Rp 2.450.000",
-                            icon = Icons.Default.Storefront,
+                            title = "Total Produk",
+                            value = "${successState?.totalProducts ?: 0}",
+                            icon = Icons.Default.Inventory2,
                             iconBgColor = greenLight,
                             iconTint = greenPrimary
                         )
                         StatCard(
                             modifier = Modifier.weight(1f),
-                            title = "Jumlah Transaksi",
-                            value = "35",
-                            icon = Icons.Default.Description,
+                            title = "Nilai Inventaris",
+                            value = "Rp ${successState?.totalStockValue?.toInt() ?: 0}",
+                            icon = Icons.Default.Payments,
                             iconBgColor = Color(0xFFE0E7FF),
                             iconTint = blueAccent
                         )
@@ -159,19 +163,19 @@ fun HomeScreen(
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         StatCard(
                             modifier = Modifier.weight(1f),
-                            title = "Laba Bersih",
-                            value = "Rp 850.000",
-                            icon = Icons.Default.AccountBalanceWallet,
-                            iconBgColor = Color(0xFFF3E8FF),
-                            iconTint = purpleAccent
+                            title = "Stok Menipis",
+                            value = "${successState?.lowStockCount ?: 0}",
+                            icon = Icons.Default.PriorityHigh,
+                            iconBgColor = Color(0xFFFEF9C3),
+                            iconTint = yellowAccent
                         )
                         StatCard(
                             modifier = Modifier.weight(1f),
-                            title = "Produk Terjual",
-                            value = "120",
-                            icon = Icons.Default.Inventory2,
-                            iconBgColor = Color(0xFFFEF9C3),
-                            iconTint = yellowAccent
+                            title = "Kategori",
+                            value = "${NoteCategory.entries.size}",
+                            icon = Icons.Default.Category,
+                            iconBgColor = Color(0xFFF3E8FF),
+                            iconTint = purpleAccent
                         )
                     }
                 }
@@ -196,6 +200,7 @@ fun HomeScreen(
                                 name = product.title,
                                 soldCount = 25, 
                                 price = product.price,
+                                imageUri = product.imageUri,
                                 onClick = { onNavigateToDetail(product.id) }
                             )
                         }
@@ -224,6 +229,7 @@ fun HomeScreen(
                             StockWarningItem(
                                 name = product.title,
                                 stockRemaining = product.stock,
+                                imageUri = product.imageUri,
                                 onClick = { onNavigateToProductList() }
                             )
                         }
@@ -294,11 +300,11 @@ fun SectionHeader(title: String, onLihatSemua: () -> Unit) {
 }
 
 @Composable
-fun ProductItem(name: String, soldCount: Int, price: Double, onClick: () -> Unit) {
+fun ProductItem(name: String, soldCount: Int, price: Double, imageUri: String?, onClick: () -> Unit) {
     val imageRes = when {
         name.contains("Nasi goreng", ignoreCase = true) -> Res.drawable.nasi_goreng
-        name.contains("Es teler", ignoreCase = true) -> Res.drawable.es_teler
-        name.contains("Es teh", ignoreCase = true) -> Res.drawable.es_teh
+        name.contains("Es teler", ignoreCase = true) -> Res.drawable.Es_teler
+        name.contains("Es teh", ignoreCase = true) -> Res.drawable.Es_teh
         else -> null
     }
 
@@ -321,12 +327,19 @@ fun ProductItem(name: String, soldCount: Int, price: Double, onClick: () -> Unit
                         .background(Color(0xFFF3F4F6)),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (imageRes != null) {
+                    if (imageUri != null) {
+                        AsyncImage(
+                            model = imageUri,
+                            contentDescription = name,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else if (imageRes != null) {
                         androidx.compose.foundation.Image(
                             painter = painterResource(imageRes),
                             contentDescription = name,
                             modifier = Modifier.fillMaxSize(),
-                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                            contentScale = ContentScale.Crop
                         )
                     } else {
                         Icon(Icons.Default.Image, contentDescription = null, tint = Color.LightGray)
@@ -348,7 +361,7 @@ fun ProductItem(name: String, soldCount: Int, price: Double, onClick: () -> Unit
 }
 
 @Composable
-fun StockWarningItem(name: String, stockRemaining: Int, onClick: () -> Unit) {
+fun StockWarningItem(name: String, stockRemaining: Int, imageUri: String?, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -369,7 +382,16 @@ fun StockWarningItem(name: String, stockRemaining: Int, onClick: () -> Unit) {
                     .background(Color(0xFFF3F4F6)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Image, contentDescription = null, tint = Color.LightGray)
+                if (imageUri != null) {
+                    AsyncImage(
+                        model = imageUri,
+                        contentDescription = name,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(Icons.Default.Image, contentDescription = null, tint = Color.LightGray)
+                }
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
