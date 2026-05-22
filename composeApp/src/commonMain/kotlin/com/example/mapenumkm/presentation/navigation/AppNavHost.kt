@@ -68,6 +68,11 @@ fun AppNavHost(
                     navController.navigate(Route.Transaction) {
                         launchSingleTop = true
                     }
+                },
+                onNavigateToAI = {
+                    navController.navigate(Route.AIAssistant()) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -197,16 +202,11 @@ fun AppNavHost(
             )
         }
 
-        composable<Route.AIAssistant> { backStackEntry ->
-            val route: Route.AIAssistant = backStackEntry.toRoute()
-
+        composable<Route.AIAssistant> { 
             AIAssistantScreen(
-                noteId = route.noteId,
-                initialText = route.initialText,
                 onNavigateBack = {
                     navigationActions.navigateBack()
-                },
-                onApplyResult = null
+                }
             )
         }
     }

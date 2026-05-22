@@ -1,5 +1,6 @@
 package com.example.mapenumkm.presentation.screens.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -37,6 +38,7 @@ fun HomeScreen(
     onNavigateToTransaction: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToReport: () -> Unit,
+    onNavigateToAI: () -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -68,12 +70,14 @@ fun HomeScreen(
                             fontWeight = FontWeight.Bold
                         )
                     )
-                    Icon(
-                        imageVector = Icons.Default.NotificationsNone,
-                        contentDescription = "Notifikasi",
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp)
-                    )
+                    IconButton(onClick = onNavigateToAI) {
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = "Smart Assistant",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
                 }
             }
         },
@@ -305,8 +309,8 @@ fun SectionHeader(title: String, onLihatSemua: () -> Unit) {
 fun ProductItem(name: String, soldCount: Int, price: Double, imageUri: String?, onClick: () -> Unit) {
     val imageRes = when {
         name.contains("Nasi goreng", ignoreCase = true) -> Res.drawable.nasi_goreng
-        name.contains("Es teler", ignoreCase = true) -> Res.drawable.Es_teler
-        name.contains("Es teh", ignoreCase = true) -> Res.drawable.Es_teh
+        name.contains("Es teler", ignoreCase = true) -> Res.drawable.es_teler
+        name.contains("Es teh", ignoreCase = true) -> Res.drawable.es_teh
         else -> null
     }
 
@@ -337,7 +341,7 @@ fun ProductItem(name: String, soldCount: Int, price: Double, imageUri: String?, 
                             contentScale = ContentScale.Crop
                         )
                     } else if (imageRes != null) {
-                        androidx.compose.foundation.Image(
+                        Image(
                             painter = painterResource(imageRes),
                             contentDescription = name,
                             modifier = Modifier.fillMaxSize(),

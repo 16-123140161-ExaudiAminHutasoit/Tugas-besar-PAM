@@ -336,8 +336,8 @@ fun ProductManageItem(
 ) {
     val imageRes = when {
         product.title.contains("nasi goreng", ignoreCase = true) -> Res.drawable.nasi_goreng
-        product.title.contains("Es teler", ignoreCase = true) -> Res.drawable.Es_teler
-        product.title.contains("Es teh", ignoreCase = true) -> Res.drawable.Es_teh
+        product.title.contains("Es teler", ignoreCase = true) -> Res.drawable.es_teler
+        product.title.contains("Es teh", ignoreCase = true) -> Res.drawable.es_teh
         else -> null
     }
 

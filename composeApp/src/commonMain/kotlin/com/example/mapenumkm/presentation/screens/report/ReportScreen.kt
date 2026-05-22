@@ -234,12 +234,22 @@ fun ReportScreen(
                             )
                             Spacer(modifier = Modifier.height(24.dp))
                             
-                            SalesGraph(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(180.dp),
-                                lineColor = greenPrimary
-                            )
+                            if (uiState.graphData.isNotEmpty()) {
+                                SalesGraph(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(180.dp),
+                                    lineColor = greenPrimary,
+                                    data = uiState.graphData
+                                )
+                            } else {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth().height(180.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("Tidak ada data untuk grafik", color = Color.Gray)
+                                }
+                            }
                         }
                     }
                 }
@@ -256,81 +266,105 @@ fun ReportScreen(
 }
 
 @Composable
-fun SalesGraph(modifier: Modifier = Modifier, lineColor: Color) {
-    val points = listOf(0.1f, 0.3f, 0.25f, 0.5f, 0.35f, 0.65f, 0.75f, 0.95f, 0.7f, 1.0f)
+fun SalesGraph(
+    modifier: Modifier = Modifier,
+    lineColor: Color,
+    data: List<ChartData>
+) {
+    val maxValue = data.maxOfOrNull { it.value }?.takeIf { it > 0 } ?: 1f
     
-    Canvas(modifier = modifier) {
-        val width = size.width
-        val height = size.height
-        val spacing = width / (points.size - 1)
-        
-        // Draw grid lines (horizontal)
-        val gridLines = 4
-        for (i in 0 until gridLines) {
-            val y = height - (height / (gridLines - 1)) * i
-            drawLine(
-                color = Color.LightGray.copy(alpha = 0.3f),
-                start = Offset(0f, y),
-                end = Offset(width, y),
-                strokeWidth = 1.dp.toPx()
-            )
-        }
+    Column(modifier = modifier) {
+        Canvas(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            val width = size.width
+            val height = size.height
+            val spacing = width / (data.size - 1).coerceAtLeast(1)
+            
+            // Draw grid lines (horizontal)
+            val gridLines = 4
+            for (i in 0 until gridLines) {
+                val y = height - (height / (gridLines - 1)) * i
+                drawLine(
+                    color = Color.LightGray.copy(alpha = 0.3f),
+                    start = Offset(0f, y),
+                    end = Offset(width, y),
+                    strokeWidth = 1.dp.toPx()
+                )
+            }
 
-        val path = Path().apply {
-            points.forEachIndexed { index, value ->
-                val x = index * spacing
-                val y = height - (value * height)
-                if (index == 0) moveTo(x, y) else lineTo(x, y)
+            if (data.size > 1) {
+                val path = Path().apply {
+                    data.forEachIndexed { index, chartData ->
+                        val x = index * spacing
+                        val y = height - (chartData.value / maxValue * height)
+                        if (index == 0) moveTo(x, y) else lineTo(x, y)
+                    }
+                }
+                
+                val fillPath = Path().apply {
+                    addPath(path)
+                    lineTo(width, height)
+                    lineTo(0f, height)
+                    close()
+                }
+
+                // Draw Area Fill
+                drawPath(
+                    path = fillPath,
+                    brush = Brush.verticalGradient(
+                        colors = listOf(lineColor.copy(alpha = 0.3f), Color.Transparent)
+                    )
+                )
+
+                // Draw Line
+                drawPath(
+                    path = path,
+                    color = lineColor,
+                    style = Stroke(width = 3.dp.toPx())
+                )
+                
+                // Draw Points
+                data.forEachIndexed { index, chartData ->
+                    val x = index * spacing
+                    val y = height - (chartData.value / maxValue * height)
+                    drawCircle(
+                        color = lineColor,
+                        radius = 4.dp.toPx(),
+                        center = Offset(x, y)
+                    )
+                    drawCircle(
+                        color = Color.White,
+                        radius = 2.dp.toPx(),
+                        center = Offset(x, y)
+                    )
+                }
+            } else if (data.size == 1) {
+                val x = width / 2
+                val y = height - (data[0].value / maxValue * height)
+                drawCircle(
+                    color = lineColor,
+                    radius = 4.dp.toPx(),
+                    center = Offset(x, y)
+                )
             }
         }
         
-        val fillPath = Path().apply {
-            addPath(path)
-            lineTo(width, height)
-            lineTo(0f, height)
-            close()
-        }
-
-        // Draw Area Fill
-        drawPath(
-            path = fillPath,
-            brush = Brush.verticalGradient(
-                colors = listOf(lineColor.copy(alpha = 0.3f), Color.Transparent)
-            )
-        )
-
-        // Draw Line
-        drawPath(
-            path = path,
-            color = lineColor,
-            style = Stroke(width = 3.dp.toPx())
-        )
-        
-        // Draw Points
-        points.forEachIndexed { index, value ->
-            val x = index * spacing
-            val y = height - (value * height)
-            drawCircle(
-                color = lineColor,
-                radius = 4.dp.toPx(),
-                center = Offset(x, y)
-            )
-            drawCircle(
-                color = Color.White,
-                radius = 2.dp.toPx(),
-                center = Offset(x, y)
-            )
-        }
-    }
-    
-    // X-Axis Labels
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        val labels = listOf("00:00", "06:00", "12:00", "18:00", "23:59")
-        labels.forEach { label ->
-            Text(label, fontSize = 10.sp, color = Color.Gray)
+        // X-Axis Labels
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Show fewer labels if there are too many data points
+            val labelCount = if (data.size > 6) 5 else data.size
+            
+            for (i in 0 until labelCount) {
+                val index = if (labelCount > 1) (i * (data.size - 1)) / (labelCount - 1) else 0
+                Text(
+                    text = data[index].label,
+                    fontSize = 10.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.widthIn(max = 40.dp)
+                )
+            }
         }
     }
 }
