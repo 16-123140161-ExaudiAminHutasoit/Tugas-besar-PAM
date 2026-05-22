@@ -307,12 +307,6 @@ fun SectionHeader(title: String, onLihatSemua: () -> Unit) {
 
 @Composable
 fun ProductItem(name: String, soldCount: Int, price: Double, imageUri: String?, onClick: () -> Unit) {
-    val imageRes = when {
-        name.contains("Nasi goreng", ignoreCase = true) -> Res.drawable.nasi_goreng
-        name.contains("Es teler", ignoreCase = true) -> Res.drawable.es_teler
-        name.contains("Es teh", ignoreCase = true) -> Res.drawable.es_teh
-        else -> null
-    }
 
     Surface(
         modifier = Modifier
@@ -336,13 +330,6 @@ fun ProductItem(name: String, soldCount: Int, price: Double, imageUri: String?, 
                     if (imageUri != null) {
                         AsyncImage(
                             model = imageUri,
-                            contentDescription = name,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else if (imageRes != null) {
-                        Image(
-                            painter = painterResource(imageRes),
                             contentDescription = name,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop

@@ -108,17 +108,6 @@ fun AddNoteScreen(
                 },
                 actions = {
                     IconButton(
-                        onClick = { onNavigateToAI(uiState.content) },
-                        enabled = uiState.content.isNotBlank()
-                    ) {
-                        Icon(
-                            Icons.Outlined.AutoAwesome, 
-                            contentDescription = "Asisten AI",
-                            tint = if (uiState.content.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
-                        )
-                    }
-                    
-                    IconButton(
                         onClick = { viewModel.saveNote() },
                         enabled = uiState.canSave
                     ) {

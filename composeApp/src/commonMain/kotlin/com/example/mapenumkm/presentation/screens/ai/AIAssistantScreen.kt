@@ -31,6 +31,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AIAssistantScreen(
+    noteId: Long? = null,
+    initialText: String? = null,
     onNavigateBack: () -> Unit,
     viewModel: AIAssistantViewModel = koinViewModel()
 ) {
@@ -40,6 +42,11 @@ fun AIAssistantScreen(
     
     val greenPrimary = Color(0xFF16A34A)
     
+    LaunchedEffect(initialText) {
+        if (initialText != null) {
+            viewModel.onInputTextChange(initialText)
+        }
+    }
     LaunchedEffect(uiState.messages.size) {
         if (uiState.messages.isNotEmpty()) {
             listState.animateScrollToItem(uiState.messages.size - 1)

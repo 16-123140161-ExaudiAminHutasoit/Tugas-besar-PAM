@@ -142,7 +142,44 @@ class AIAssistantViewModel(
         }
         
         viewModelScope.launch {
-            val result = aiRepository.chat(text)
+            val transactions = transactionRepository.getAllTransactions().first()
+            val notes = noteRepository.getAllNotes().first()
+            
+            val systemTZ = TimeZone.currentSystemDefault()
+            val today = Clock.System.now().toLocalDateTime(systemTZ).date
+            
+            val todayTransactions = transactions.filter {
+                it.createdAt.toLocalDateTime(systemTZ).date == today
+            }
+            
+            val totalSales = todayTransactions.sumOf { it.total }
+            val lowStock = notes.filter { it.stock <= 5 }
+            
+            // Calculate top product
+            val productSales = mutableMapOf<String, Int>()
+            todayTransactions.forEach { t ->
+                t.items.forEach { item ->
+                    productSales[item.productName] = (productSales[item.productName] ?: 0) + item.quantity
+                }
+            }
+            val topProductEntry = productSales.maxByOrNull { it.value }
+            
+            val businessContext = """
+                Ringkasan Bisnis Hari Ini (${today}):
+                - Total Pendapatan: Rp${totalSales}
+                - Jumlah Transaksi: ${todayTransactions.size}
+                - Produk Terlaris: ${topProductEntry?.key ?: "Belum ada"} (${topProductEntry?.value ?: 0} terjual)
+                - Produk Stok Menipis: ${lowStock.joinToString { "${it.title} (Sisa ${it.stock})" }.ifEmpty { "Semua stok aman" }}
+                
+                Fitur Aplikasi MaPen UMKM:
+                1. Dashboard: Ringkasan performa bisnis.
+                2. Manajemen Produk: Tambah/Edit/Hapus produk dan stok.
+                3. Transaksi: Pencatatan penjualan dan hitung kembalian.
+                4. Riwayat: Daftar transaksi terdahulu.
+                5. Laporan: Statistik harian, mingguan, bulanan.
+            """.trimIndent()
+
+            val result = aiRepository.businessChat(text, businessContext)
             result.onSuccess { response ->
                 val aiMsg = ChatMessage(response, false)
                 _uiState.update { it.copy(messages = it.messages + aiMsg, isLoading = false) }

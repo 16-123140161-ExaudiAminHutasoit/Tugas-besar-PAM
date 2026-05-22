@@ -24,6 +24,7 @@ import com.example.mapenumkm.presentation.screens.addnote.AddNoteViewModel
 import com.example.mapenumkm.presentation.screens.ai.AIAssistantViewModel
 import com.example.mapenumkm.presentation.screens.detail.NoteDetailViewModel
 import com.example.mapenumkm.presentation.screens.history.HistoryViewModel
+import com.example.mapenumkm.presentation.screens.product.ProductListViewModel
 import com.example.mapenumkm.presentation.screens.report.ReportViewModel
 import com.example.mapenumkm.presentation.screens.home.HomeViewModel
 import com.example.mapenumkm.presentation.screens.transaction.TransactionViewModel
@@ -88,6 +89,7 @@ val viewModelModule = module {
     viewModelOf(::TransactionViewModel)
     viewModelOf(::HistoryViewModel)
     viewModelOf(::ReportViewModel)
+    viewModelOf(::ProductListViewModel)
 }
 
 // ==================== SHARED MODULES ====================

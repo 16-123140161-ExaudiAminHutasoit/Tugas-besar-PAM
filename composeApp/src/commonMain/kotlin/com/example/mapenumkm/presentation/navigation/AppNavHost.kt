@@ -1,7 +1,9 @@
 package com.example.mapenumkm.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,6 +17,7 @@ import com.example.mapenumkm.presentation.screens.report.ReportScreen
 import com.example.mapenumkm.presentation.screens.home.HomeScreen
 import com.example.mapenumkm.presentation.screens.login.LoginScreen
 import com.example.mapenumkm.presentation.screens.product.ProductListScreen
+import com.example.mapenumkm.presentation.screens.product.ProductListViewModel
 import com.example.mapenumkm.presentation.screens.transaction.TransactionScreen
 import com.example.mapenumkm.presentation.screens.transaction.TransactionViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -70,9 +73,7 @@ fun AppNavHost(
                     }
                 },
                 onNavigateToAI = {
-                    navController.navigate(Route.AIAssistant()) {
-                        launchSingleTop = true
-                    }
+                    navigationActions.navigateToAIAssistant()
                 }
             )
         }
@@ -87,31 +88,21 @@ fun AppNavHost(
         }
 
         composable<Route.ProductList> {
+            val viewModel: ProductListViewModel = koinViewModel()
+            val state by viewModel.state.collectAsStateWithLifecycle()
+
             ProductListScreen(
-                onNavigateToAddProduct = { navigationActions.navigateToAddNote() },
-                onNavigateToEditProduct = { noteId ->
-                    navigationActions.navigateToAddNote(noteId)
+                state = state,
+                onBackClick = { navController.popBackStack() },
+                onAddProductClick = { navigationActions.navigateToAddNote() },
+                onEditProductClick = { product ->
+                    navigationActions.navigateToAddNote(product.id)
                 },
-                onNavigateToDashboard = {
-                    navController.navigate(Route.Home) {
-                        popUpTo(Route.Home) { inclusive = true }
-                        launchSingleTop = true
-                    }
+                onDeleteProductClick = { product ->
+                    viewModel.deleteProduct(product)
                 },
-                onNavigateToHistory = {
-                    navController.navigate(Route.History) {
-                        launchSingleTop = true
-                    }
-                },
-                onNavigateToReport = {
-                    navController.navigate(Route.Report) {
-                        launchSingleTop = true
-                    }
-                },
-                onNavigateToTransaction = {
-                    navController.navigate(Route.Transaction) {
-                        launchSingleTop = true
-                    }
+                onSearchQueryChange = { query ->
+                    viewModel.onSearchQueryChange(query)
                 }
             )
         }
@@ -202,8 +193,11 @@ fun AppNavHost(
             )
         }
 
-        composable<Route.AIAssistant> { 
+        composable<Route.AIAssistant> { backStackEntry ->
+            val route: Route.AIAssistant = backStackEntry.toRoute()
             AIAssistantScreen(
+                noteId = route.noteId,
+                initialText = route.initialText,
                 onNavigateBack = {
                     navigationActions.navigateBack()
                 }
