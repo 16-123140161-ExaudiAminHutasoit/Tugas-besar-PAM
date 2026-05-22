@@ -15,6 +15,9 @@ import com.example.mapenumkm.presentation.screens.report.ReportScreen
 import com.example.mapenumkm.presentation.screens.home.HomeScreen
 import com.example.mapenumkm.presentation.screens.login.LoginScreen
 import com.example.mapenumkm.presentation.screens.product.ProductListScreen
+import com.example.mapenumkm.presentation.screens.transaction.TransactionScreen
+import com.example.mapenumkm.presentation.screens.transaction.TransactionViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AppNavHost(
@@ -60,7 +63,21 @@ fun AppNavHost(
                     navController.navigate(Route.Report) {
                         launchSingleTop = true
                     }
+                },
+                onNavigateToTransaction = {
+                    navController.navigate(Route.Transaction) {
+                        launchSingleTop = true
+                    }
                 }
+            )
+        }
+
+        composable<Route.Transaction> {
+            val viewModel: TransactionViewModel = koinViewModel()
+            TransactionScreen(
+                viewModel = viewModel,
+                onNavigateBack = { navController.popBackStack() },
+                onSuccess = { navController.popBackStack() }
             )
         }
 
@@ -85,6 +102,11 @@ fun AppNavHost(
                     navController.navigate(Route.Report) {
                         launchSingleTop = true
                     }
+                },
+                onNavigateToTransaction = {
+                    navController.navigate(Route.Transaction) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -103,8 +125,12 @@ fun AppNavHost(
                         launchSingleTop = true
                     }
                 },
-                onNavigateToTransaksi = {},
-                onNavigateToLaporan = {
+                onNavigateToTransaction = {
+                    navController.navigate(Route.Transaction) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToReport = {
                     navController.navigate(Route.Report) {
                         launchSingleTop = true
                     }
@@ -126,8 +152,12 @@ fun AppNavHost(
                         launchSingleTop = true
                     }
                 },
-                onNavigateToTransaksi = {},
-                onNavigateToRiwayat = {
+                onNavigateToTransaction = {
+                    navController.navigate(Route.Transaction) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToHistory = {
                     navController.navigate(Route.History) {
                         launchSingleTop = true
                     }

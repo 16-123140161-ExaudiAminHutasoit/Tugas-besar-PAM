@@ -22,9 +22,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mapenumkm.presentation.screens.history.formatAmount
 import com.example.mapenumkm.presentation.screens.home.DashboardBottomNavigation
 import com.example.mapenumkm.presentation.screens.home.SectionHeader
 import com.example.mapenumkm.presentation.screens.home.StatCard
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,11 +34,18 @@ fun ReportScreen(
     onNavigateBack: () -> Unit,
     onNavigateToDashboard: () -> Unit,
     onNavigateToProduct: () -> Unit,
-    onNavigateToTransaksi: () -> Unit,
-    onNavigateToRiwayat: () -> Unit,
+    onNavigateToTransaction: () -> Unit,
+    onNavigateToHistory: () -> Unit,
+    viewModel: ReportViewModel = koinViewModel()
 ) {
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    val uiState by viewModel.uiState.collectAsState()
     val tabs = listOf("Harian", "Mingguan", "Bulanan")
+    
+    val selectedTabIndex = when (uiState.selectedFilter) {
+        ReportFilter.DAILY -> 0
+        ReportFilter.WEEKLY -> 1
+        ReportFilter.MONTHLY -> 2
+    }
     
     val greenPrimary = Color(0xFF16A34A)
     val backgroundGray = Color(0xFFFBFBFF)
@@ -81,149 +90,167 @@ fun ReportScreen(
                 selectedItem = 4,
                 onDashboardClick = onNavigateToDashboard,
                 onProdukClick = onNavigateToProduct,
-                onTransaksiClick = onNavigateToTransaksi,
-                onRiwayatClick = onNavigateToRiwayat,
+                onTransaksiClick = onNavigateToTransaction,
+                onRiwayatClick = onNavigateToHistory,
                 onLaporanClick = {}
             )
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(backgroundGray)
-        ) {
-            // Tabs
-            item {
-                TabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    containerColor = Color.White,
-                    contentColor = greenPrimary,
-                    indicator = { tabPositions ->
-                        TabRowDefaults.SecondaryIndicator(
-                            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                            color = greenPrimary
-                        )
-                    },
-                    divider = {}
-                ) {
-                    tabs.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTabIndex == index,
-                            onClick = { selectedTabIndex = index },
-                            text = {
-                                Text(
-                                    text = title,
-                                    style = MaterialTheme.typography.labelLarge.copy(
-                                        fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal,
-                                        color = if (selectedTabIndex == index) greenPrimary else Color.Gray
+        if (uiState.isLoading) {
+            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = greenPrimary)
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(backgroundGray)
+            ) {
+                // Tabs
+                item {
+                    TabRow(
+                        selectedTabIndex = selectedTabIndex,
+                        containerColor = Color.White,
+                        contentColor = greenPrimary,
+                        indicator = { tabPositions ->
+                            TabRowDefaults.SecondaryIndicator(
+                                Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                                color = greenPrimary
+                            )
+                        },
+                        divider = {}
+                    ) {
+                        tabs.forEachIndexed { index, title ->
+                            Tab(
+                                selected = selectedTabIndex == index,
+                                onClick = {
+                                    val filter = when (index) {
+                                        0 -> ReportFilter.DAILY
+                                        1 -> ReportFilter.WEEKLY
+                                        2 -> ReportFilter.MONTHLY
+                                        else -> ReportFilter.DAILY
+                                    }
+                                    viewModel.onFilterSelected(filter)
+                                },
+                                text = {
+                                    Text(
+                                        text = title,
+                                        style = MaterialTheme.typography.labelLarge.copy(
+                                            fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal,
+                                            color = if (selectedTabIndex == index) greenPrimary else Color.Gray
+                                        )
                                     )
-                                )
-                            }
-                        )
+                                }
+                            )
+                        }
                     }
                 }
-            }
 
-            // Date Selector
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = { /* Prev Date */ }) {
-                        Icon(Icons.Default.ChevronLeft, contentDescription = null, tint = Color.Gray)
-                    }
-                    Text(
-                        text = "20 Mei 2025",
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    IconButton(onClick = { /* Next Date */ }) {
-                        Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color.Gray)
-                    }
-                }
-            }
-
-            // Stats Grid 2x2
-            item {
-                Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        StatCard(
-                            modifier = Modifier.weight(1f),
-                            title = "Total Penjualan",
-                            value = "Rp 2.450.000",
-                            icon = Icons.Default.Description,
-                            iconBgColor = Color(0xFFDCFCE7),
-                            iconTint = greenPrimary
-                        )
-                        StatCard(
-                            modifier = Modifier.weight(1f),
-                            title = "Total Transaksi",
-                            value = "35",
-                            icon = Icons.Default.ReceiptLong,
-                            iconBgColor = Color(0xFFE0E7FF),
-                            iconTint = Color(0xFF60A5FA)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        StatCard(
-                            modifier = Modifier.weight(1f),
-                            title = "Produk Terjual",
-                            value = "120",
-                            icon = Icons.Default.Inventory2,
-                            iconBgColor = Color(0xFFFEF9C3),
-                            iconTint = Color(0xFFFACC15)
-                        )
-                        StatCard(
-                            modifier = Modifier.weight(1f),
-                            title = "Rata-rata per Transaksi",
-                            value = "Rp 70.000",
-                            icon = Icons.Default.Payments,
-                            iconBgColor = Color(0xFFFFEDD5),
-                            iconTint = Color(0xFFF97316)
-                        )
-                    }
-                }
-            }
-
-            // Sales Graph Card
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
+                // Date Selector
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { /* Prev Date */ }) {
+                            Icon(Icons.Default.ChevronLeft, contentDescription = null, tint = Color.Gray)
+                        }
                         Text(
-                            "Grafik Penjualan",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            text = when (uiState.selectedFilter) {
+                                ReportFilter.DAILY -> "Hari Ini"
+                                ReportFilter.WEEKLY -> "Minggu Ini"
+                                ReportFilter.MONTHLY -> "Bulan Ini"
+                            },
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                            modifier = Modifier.padding(horizontal = 16.dp)
                         )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        
-                        SalesGraph(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(180.dp),
-                            lineColor = greenPrimary
-                        )
+                        IconButton(onClick = { /* Next Date */ }) {
+                            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color.Gray)
+                        }
                     }
                 }
-            }
 
-            // Produk Terlaris Section
-            item {
-                SectionHeader(title = "Produk Terlaris", onLihatSemua = { /* Action */ })
+                // Stats Grid 2x2
+                item {
+                    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            StatCard(
+                                modifier = Modifier.weight(1f),
+                                title = "Total Penjualan",
+                                value = "Rp ${formatAmount(uiState.totalSales)}",
+                                icon = Icons.Default.Description,
+                                iconBgColor = Color(0xFFDCFCE7),
+                                iconTint = greenPrimary
+                            )
+                            StatCard(
+                                modifier = Modifier.weight(1f),
+                                title = "Total Transaksi",
+                                value = uiState.totalTransactions.toString(),
+                                icon = Icons.Default.ReceiptLong,
+                                iconBgColor = Color(0xFFE0E7FF),
+                                iconTint = Color(0xFF60A5FA)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            StatCard(
+                                modifier = Modifier.weight(1f),
+                                title = "Produk Terjual",
+                                value = uiState.totalProductsSold.toString(),
+                                icon = Icons.Default.Inventory2,
+                                iconBgColor = Color(0xFFFEF9C3),
+                                iconTint = Color(0xFFFACC15)
+                            )
+                            StatCard(
+                                modifier = Modifier.weight(1f),
+                                title = "Rata-rata per Transaksi",
+                                value = "Rp ${formatAmount(uiState.averageTransactionValue)}",
+                                icon = Icons.Default.Payments,
+                                iconBgColor = Color(0xFFFFEDD5),
+                                iconTint = Color(0xFFF97316)
+                            )
+                        }
+                    }
+                }
+
+                // Sales Graph Card
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                "Grafik Penjualan",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            )
+                            Spacer(modifier = Modifier.height(24.dp))
+                            
+                            SalesGraph(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(180.dp),
+                                lineColor = greenPrimary
+                            )
+                        }
+                    }
+                }
+
+                // Produk Terlaris Section
+                item {
+                    SectionHeader(title = "Produk Terlaris", onLihatSemua = { /* Action */ })
+                }
+                
+                item { Spacer(modifier = Modifier.height(24.dp)) }
             }
-            
-            item { Spacer(modifier = Modifier.height(24.dp)) }
         }
     }
 }

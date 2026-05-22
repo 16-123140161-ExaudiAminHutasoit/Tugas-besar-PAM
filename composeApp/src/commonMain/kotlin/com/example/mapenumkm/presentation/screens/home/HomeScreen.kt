@@ -34,6 +34,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun HomeScreen(
     onNavigateToDetail: (Long) -> Unit,
     onNavigateToProductList: () -> Unit,
+    onNavigateToTransaction: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToReport: () -> Unit,
     viewModel: HomeViewModel = koinViewModel()
@@ -81,12 +82,13 @@ fun HomeScreen(
                 selectedItem = 0,
                 onDashboardClick = {},
                 onProdukClick = onNavigateToProductList,
-                onTransaksiClick = {},
+                onTransaksiClick = onNavigateToTransaction,
                 onRiwayatClick = onNavigateToHistory,
                 onLaporanClick = onNavigateToReport
             )
         }
-    ) { paddingValues ->
+    ) {
+paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()

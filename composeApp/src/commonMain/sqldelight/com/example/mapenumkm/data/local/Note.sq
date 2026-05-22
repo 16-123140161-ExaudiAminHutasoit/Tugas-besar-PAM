@@ -58,6 +58,12 @@ UPDATE NoteEntity
 SET title = ?, content = ?, price = ?, stock = ?, category = ?, color = ?, image_uri = ?, is_pinned = ?, updated_at = ?
 WHERE id = ?;
 
+-- Update stock
+reduceStock:
+UPDATE NoteEntity
+SET stock = stock - :stockReduction, updated_at = :updatedAt
+WHERE id = :id;
+
 -- Delete note by ID
 deleteNoteById:
 DELETE FROM NoteEntity
@@ -83,3 +89,43 @@ countNotesByCategory:
 SELECT category, COUNT(*) AS total
 FROM NoteEntity
 GROUP BY category;
+
+-- Transaction Table
+CREATE TABLE TransactionEntity (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    subtotal REAL NOT NULL,
+    discount REAL NOT NULL DEFAULT 0.0,
+    total REAL NOT NULL,
+    payment_amount REAL NOT NULL,
+    change_amount REAL NOT NULL,
+    created_at INTEGER NOT NULL
+);
+
+-- Transaction Item Table
+CREATE TABLE TransactionItemEntity (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    transaction_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    product_name TEXT NOT NULL,
+    product_price REAL NOT NULL,
+    quantity INTEGER NOT NULL,
+    FOREIGN KEY (transaction_id) REFERENCES TransactionEntity(id) ON DELETE CASCADE
+);
+
+-- Queries for Transactions
+insertTransaction:
+INSERT INTO TransactionEntity (subtotal, discount, total, payment_amount, change_amount, created_at)
+VALUES (?, ?, ?, ?, ?, ?);
+
+insertTransactionItem:
+INSERT INTO TransactionItemEntity (transaction_id, product_id, product_name, product_price, quantity)
+VALUES (?, ?, ?, ?, ?);
+
+getAllTransactions:
+SELECT * FROM TransactionEntity ORDER BY created_at DESC;
+
+getTransactionItems:
+SELECT * FROM TransactionItemEntity WHERE transaction_id = ?;
+
+deleteTransaction:
+DELETE FROM TransactionEntity WHERE id = ?;

@@ -40,6 +40,7 @@ fun ProductListScreen(
     onNavigateToAddProduct: () -> Unit,
     onNavigateToEditProduct: (Long) -> Unit,
     onNavigateToDashboard: () -> Unit,
+    onNavigateToTransaction: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToReport: () -> Unit,
     viewModel: HomeViewModel = koinViewModel()
@@ -83,12 +84,13 @@ fun ProductListScreen(
                 selectedItem = 1,
                 onDashboardClick = onNavigateToDashboard,
                 onProdukClick = {},
-                onTransaksiClick = {},
+                onTransaksiClick = onNavigateToTransaction,
                 onRiwayatClick = onNavigateToHistory,
                 onLaporanClick = onNavigateToReport
             )
         }
-    ) { paddingValues ->
+    ) {
+paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -200,9 +202,38 @@ fun ProductListScreen(
                             contentPadding = PaddingValues(bottom = 20.dp)
                         ) {
                             items(state.notes) { product ->
+                                var showDeleteDialog by remember { mutableStateOf(false) }
+
+                                if (showDeleteDialog) {
+                                    AlertDialog(
+                                        onDismissRequest = { showDeleteDialog = false },
+                                        title = { Text("Hapus Produk") },
+                                        text = { Text("Apakah Anda yakin ingin menghapus '${product.title}'? Tindakan ini tidak dapat dibatalkan.") },
+                                        confirmButton = {
+                                            TextButton(
+                                                onClick = {
+                                                    viewModel.deleteNote(product.id)
+                                                    showDeleteDialog = false
+                                                },
+                                                colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
+                                            ) {
+                                                Text("Hapus")
+                                            }
+                                        },
+                                        dismissButton = {
+                                            TextButton(onClick = { showDeleteDialog = false }) {
+                                                Text("Batal")
+                                            }
+                                        },
+                                        containerColor = Color.White
+                                    )
+                                }
+
                                 ProductManageItem(
-                                    product = product
-                                ) { onNavigateToEditProduct(product.id) }
+                                    product = product,
+                                    onEditClick = { onNavigateToEditProduct(product.id) },
+                                    onDeleteClick = { showDeleteDialog = true }
+                                )
                             }
                         }
                     }
@@ -300,7 +331,8 @@ fun EmptyProductState(query: String) {
 @Composable
 fun ProductManageItem(
     product: Note,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
     val imageRes = when {
         product.title.contains("nasi goreng", ignoreCase = true) -> Res.drawable.nasi_goreng
@@ -377,8 +409,13 @@ fun ProductManageItem(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.Center
             ) {
-                IconButton(onClick = onEditClick) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.Gray, modifier = Modifier.size(20.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onEditClick) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.Gray, modifier = Modifier.size(20.dp))
+                    }
+                    IconButton(onClick = onDeleteClick) {
+                        Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.Red.copy(alpha = 0.6f), modifier = Modifier.size(20.dp))
+                    }
                 }
                 Text(
                     text = "Stok ${product.stock}",

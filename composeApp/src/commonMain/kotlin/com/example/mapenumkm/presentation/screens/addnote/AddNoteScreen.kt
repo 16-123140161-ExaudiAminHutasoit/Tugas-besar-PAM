@@ -59,7 +59,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.example.mapenumkm.domain.model.NoteCategory
-import com.example.mapenumkm.presentation.components.ColorPickerRow
 import com.example.mapenumkm.presentation.components.LoadingIndicator
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -222,24 +221,10 @@ fun AddNoteScreen(
                 }
                 
                 // Category Group
-                FormGroup(title = "Kategori & Label") {
+                FormGroup(title = "Kategori") {
                     CategoryDropdown(
                         selectedCategory = uiState.category,
                         onCategorySelected = viewModel::onCategoryChange
-                    )
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Text(
-                        text = "Warna Label",
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                    ColorPickerRow(
-                        selectedColor = uiState.color,
-                        onColorSelected = viewModel::onColorChange
                     )
                 }
                 

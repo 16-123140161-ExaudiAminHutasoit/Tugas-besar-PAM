@@ -9,8 +9,10 @@ import com.example.mapenumkm.data.local.datastore.create
 import com.example.mapenumkm.data.remote.api.GeminiService
 import com.example.mapenumkm.data.repository.AIRepositoryImpl
 import com.example.mapenumkm.data.repository.NoteRepositoryImpl
+import com.example.mapenumkm.data.repository.TransactionRepositoryImpl
 import com.example.mapenumkm.domain.repository.AIRepository
 import com.example.mapenumkm.domain.repository.NoteRepository
+import com.example.mapenumkm.domain.repository.TransactionRepository
 import com.example.mapenumkm.domain.usecase.DeleteNoteUseCase
 import com.example.mapenumkm.domain.usecase.GenerateIdeasUseCase
 import com.example.mapenumkm.domain.usecase.GetAllNotesUseCase
@@ -21,7 +23,10 @@ import com.example.mapenumkm.domain.usecase.SummarizeNoteUseCase
 import com.example.mapenumkm.presentation.screens.addnote.AddNoteViewModel
 import com.example.mapenumkm.presentation.screens.ai.AIAssistantViewModel
 import com.example.mapenumkm.presentation.screens.detail.NoteDetailViewModel
+import com.example.mapenumkm.presentation.screens.history.HistoryViewModel
+import com.example.mapenumkm.presentation.screens.report.ReportViewModel
 import com.example.mapenumkm.presentation.screens.home.HomeViewModel
+import com.example.mapenumkm.presentation.screens.transaction.TransactionViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
@@ -58,6 +63,7 @@ val preferencesModule = module {
 val repositoryModule = module {
     singleOf(::NoteRepositoryImpl) bind NoteRepository::class
     singleOf(::AIRepositoryImpl) bind AIRepository::class
+    singleOf(::TransactionRepositoryImpl) bind TransactionRepository::class
 }
 
 // ==================== USE CASE MODULE ====================
@@ -79,6 +85,9 @@ val viewModelModule = module {
     viewModelOf(::AddNoteViewModel)
     viewModelOf(::NoteDetailViewModel)
     viewModelOf(::AIAssistantViewModel)
+    viewModelOf(::TransactionViewModel)
+    viewModelOf(::HistoryViewModel)
+    viewModelOf(::ReportViewModel)
 }
 
 // ==================== SHARED MODULES ====================
