@@ -1,3 +1,27 @@
+-- User Table
+CREATE TABLE UserEntity (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    phone TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+);
+
+-- User Queries
+insertUser:
+INSERT INTO UserEntity (name, email, phone, password, created_at)
+VALUES (?, ?, ?, ?, ?);
+
+getUserByEmailOrPhone:
+SELECT * FROM UserEntity
+WHERE email = ? OR phone = ?;
+
+updatePassword:
+UPDATE UserEntity
+SET password = ?
+WHERE email = ? OR phone = ?;
+
 -- Note table schema for SQLDelight
 -- File: Note.sq
 
@@ -109,6 +133,7 @@ CREATE TABLE TransactionItemEntity (
     product_name TEXT NOT NULL,
     product_price REAL NOT NULL,
     quantity INTEGER NOT NULL,
+    product_image_url TEXT,
     FOREIGN KEY (transaction_id) REFERENCES TransactionEntity(id) ON DELETE CASCADE
 );
 
@@ -118,14 +143,24 @@ INSERT INTO TransactionEntity (subtotal, discount, total, payment_amount, change
 VALUES (?, ?, ?, ?, ?, ?);
 
 insertTransactionItem:
-INSERT INTO TransactionItemEntity (transaction_id, product_id, product_name, product_price, quantity)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO TransactionItemEntity (transaction_id, product_id, product_name, product_price, quantity, product_image_url)
+VALUES (?, ?, ?, ?, ?, ?);
 
 getAllTransactions:
 SELECT * FROM TransactionEntity ORDER BY created_at DESC;
 
 getTransactionItems:
-SELECT * FROM TransactionItemEntity WHERE transaction_id = ?;
+SELECT
+    T.id,
+    T.transaction_id,
+    T.product_id,
+    T.product_name,
+    T.product_price,
+    T.quantity,
+    COALESCE(T.product_image_url, N.image_uri) AS product_image_url
+FROM TransactionItemEntity T
+LEFT JOIN NoteEntity N ON T.product_id = N.id
+WHERE T.transaction_id = ?;
 
 deleteTransaction:
 DELETE FROM TransactionEntity WHERE id = ?;

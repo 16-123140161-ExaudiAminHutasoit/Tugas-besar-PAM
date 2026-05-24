@@ -10,9 +10,11 @@ import com.example.mapenumkm.data.remote.api.GeminiService
 import com.example.mapenumkm.data.repository.AIRepositoryImpl
 import com.example.mapenumkm.data.repository.NoteRepositoryImpl
 import com.example.mapenumkm.data.repository.TransactionRepositoryImpl
+import com.example.mapenumkm.data.repository.UserRepositoryImpl
 import com.example.mapenumkm.domain.repository.AIRepository
 import com.example.mapenumkm.domain.repository.NoteRepository
 import com.example.mapenumkm.domain.repository.TransactionRepository
+import com.example.mapenumkm.domain.repository.UserRepository
 import com.example.mapenumkm.domain.usecase.DeleteNoteUseCase
 import com.example.mapenumkm.domain.usecase.GenerateIdeasUseCase
 import com.example.mapenumkm.domain.usecase.GetAllNotesUseCase
@@ -27,6 +29,9 @@ import com.example.mapenumkm.presentation.screens.history.HistoryViewModel
 import com.example.mapenumkm.presentation.screens.product.ProductListViewModel
 import com.example.mapenumkm.presentation.screens.report.ReportViewModel
 import com.example.mapenumkm.presentation.screens.home.HomeViewModel
+import com.example.mapenumkm.presentation.screens.login.LoginViewModel
+import com.example.mapenumkm.presentation.screens.register.RegisterViewModel
+import com.example.mapenumkm.presentation.screens.forgotpassword.ForgotPasswordViewModel
 import com.example.mapenumkm.presentation.screens.transaction.TransactionViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -65,6 +70,7 @@ val repositoryModule = module {
     singleOf(::NoteRepositoryImpl) bind NoteRepository::class
     singleOf(::AIRepositoryImpl) bind AIRepository::class
     singleOf(::TransactionRepositoryImpl) bind TransactionRepository::class
+    singleOf(::UserRepositoryImpl) bind UserRepository::class
 }
 
 // ==================== USE CASE MODULE ====================
@@ -90,6 +96,9 @@ val viewModelModule = module {
     viewModelOf(::HistoryViewModel)
     viewModelOf(::ReportViewModel)
     viewModelOf(::ProductListViewModel)
+    viewModelOf(::LoginViewModel)
+    viewModelOf(::RegisterViewModel)
+    viewModelOf(::ForgotPasswordViewModel)
 }
 
 // ==================== SHARED MODULES ====================

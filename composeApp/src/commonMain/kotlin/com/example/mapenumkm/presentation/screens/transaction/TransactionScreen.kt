@@ -39,6 +39,8 @@ fun TransactionScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    val greenPrimary = Color(0xFF16A34A)
+
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
             onSuccess()
@@ -47,20 +49,34 @@ fun TransactionScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Transaksi Baru", color = Color.White) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(greenPrimary)
+                    .statusBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = onNavigateBack,
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Kembali",
+                            tint = Color.White
+                        )
                     }
-                },
-                actions = {
-                    // Action icons removed as per request
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF2E7D32) // Green color from image
-                )
-            )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        "Transaksi Baru",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                }
+            }
         },
         bottomBar = {
             Button(
@@ -70,7 +86,7 @@ fun TransactionScreen(
                     .padding(16.dp)
                     .height(56.dp),
                 shape = RoundedCornerShape(28.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+                colors = ButtonDefaults.buttonColors(containerColor = greenPrimary)
             ) {
                 Text("Simpan Transaksi", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
@@ -155,7 +171,7 @@ fun TransactionScreen(
                                 Text(
                                     "Rp ${uiState.total.toInt()}",
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF2E7D32)
+                                    color = Color(0xFF16A34A)
                                 )
                             }
                             
@@ -184,11 +200,11 @@ fun TransactionScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Kembalian", fontWeight = FontWeight.Bold, color = Color(0xFF2E7D32))
+                                Text("Kembalian", fontWeight = FontWeight.Bold, color = Color(0xFF16A34A))
                                 Text(
                                     "Rp ${uiState.changeAmount.toInt()}",
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF2E7D32)
+                                    color = Color(0xFF16A34A)
                                 )
                             }
                         }
@@ -248,7 +264,7 @@ fun TransactionProductItem(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = if (isOutOfStock) "Habis" else "Stok: ${product.stock}",
-                    color = if (isOutOfStock) Color.Red else Color(0xFF2E7D32),
+                    color = if (isOutOfStock) Color.Red else Color(0xFF16A34A),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -264,7 +280,7 @@ fun TransactionProductItem(
                 enabled = quantity > 0,
                 modifier = Modifier.size(32.dp).border(1.dp, if(quantity > 0) Color.LightGray else Color.Transparent, CircleShape)
             ) {
-                Icon(Icons.Default.Remove, contentDescription = null, tint = if(quantity > 0) Color(0xFF2E7D32) else Color.Gray, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.Remove, contentDescription = null, tint = if(quantity > 0) Color(0xFF16A34A) else Color.Gray, modifier = Modifier.size(16.dp))
             }
             
             Text(quantity.toString(), fontWeight = FontWeight.Bold)
@@ -274,7 +290,7 @@ fun TransactionProductItem(
                 enabled = !isOutOfStock && !isLimitReached,
                 modifier = Modifier.size(32.dp).border(1.dp, if(!isOutOfStock && !isLimitReached) Color.LightGray else Color.Transparent, CircleShape)
             ) {
-                Icon(Icons.Default.Add, contentDescription = null, tint = if(!isOutOfStock && !isLimitReached) Color(0xFF2E7D32) else Color.Gray, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.Add, contentDescription = null, tint = if(!isOutOfStock && !isLimitReached) Color(0xFF16A34A) else Color.Gray, modifier = Modifier.size(16.dp))
             }
         }
     }

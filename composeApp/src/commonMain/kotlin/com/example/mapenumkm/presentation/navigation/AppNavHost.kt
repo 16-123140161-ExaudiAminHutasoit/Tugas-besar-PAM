@@ -1,6 +1,7 @@
 package com.example.mapenumkm.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -9,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.mapenumkm.data.local.datastore.UserPreferences
 import com.example.mapenumkm.presentation.screens.addnote.AddNoteScreen
 import com.example.mapenumkm.presentation.screens.ai.AIAssistantScreen
 import com.example.mapenumkm.presentation.screens.detail.NoteDetailScreen
@@ -16,24 +18,45 @@ import com.example.mapenumkm.presentation.screens.history.HistoryScreen
 import com.example.mapenumkm.presentation.screens.report.ReportScreen
 import com.example.mapenumkm.presentation.screens.home.HomeScreen
 import com.example.mapenumkm.presentation.screens.login.LoginScreen
+import com.example.mapenumkm.presentation.screens.register.RegisterScreen
+import com.example.mapenumkm.presentation.screens.forgotpassword.ForgotPasswordScreen
 import com.example.mapenumkm.presentation.screens.product.ProductListScreen
 import com.example.mapenumkm.presentation.screens.product.ProductListViewModel
+import com.example.mapenumkm.presentation.screens.splash.SplashScreen
 import com.example.mapenumkm.presentation.screens.transaction.TransactionScreen
 import com.example.mapenumkm.presentation.screens.transaction.TransactionViewModel
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    userPreferences: UserPreferences = koinInject()
 ) {
     val navigationActions = createNavigationActions(navController)
+    val isLoggedIn by userPreferences.isLoggedIn.collectAsState(initial = null)
+
+    if (isLoggedIn == null) return
 
     NavHost(
         navController = navController,
-        startDestination = Route.Login,
+        startDestination = Route.Splash,
         modifier = modifier
     ) {
+        composable<Route.Splash> {
+            SplashScreen(
+                onSplashFinished = {
+                    val destination = if (isLoggedIn == true) Route.Home else Route.Login
+                    navController.navigate(destination) {
+                        popUpTo(Route.Splash) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
+
         composable<Route.Login> {
             LoginScreen(
                 onLoginSuccess = {
@@ -43,6 +66,35 @@ fun AppNavHost(
                         }
                         launchSingleTop = true
                     }
+                },
+                onNavigateToRegister = {
+                    navController.navigate(Route.Register)
+                },
+                onNavigateToForgotPassword = {
+                    navController.navigate(Route.ForgotPassword)
+                }
+            )
+        }
+
+        composable<Route.Register> {
+            RegisterScreen(
+                onRegisterSuccess = {
+                    navController.navigate(Route.Home) {
+                        popUpTo(Route.Login) {
+                            inclusive = true
+                        }
+                    }
+                },
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable<Route.ForgotPassword> {
+            ForgotPasswordScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -74,6 +126,13 @@ fun AppNavHost(
                 },
                 onNavigateToAI = {
                     navigationActions.navigateToAIAssistant()
+                },
+                onLoggedOut = {
+                    navController.navigate(Route.Login) {
+                        popUpTo(Route.Home) {
+                            inclusive = true
+                        }
+                    }
                 }
             )
         }
@@ -157,6 +216,12 @@ fun AppNavHost(
                     navController.navigate(Route.History) {
                         launchSingleTop = true
                     }
+                },
+                onNavigateToSettings = {
+                    // Implementasi jika ada Route.Settings
+                },
+                onNavigateToProfile = {
+                    // Implementasi jika ada Route.Profile
                 }
             )
         }

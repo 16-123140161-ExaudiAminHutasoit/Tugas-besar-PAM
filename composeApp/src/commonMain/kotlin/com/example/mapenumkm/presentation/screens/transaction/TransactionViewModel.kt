@@ -30,7 +30,8 @@ data class TransactionUiState(
                     productId = product.id,
                     productName = product.title,
                     productPrice = product.price,
-                    quantity = cartItems[product.id] ?: 0
+                    quantity = cartItems[product.id] ?: 0,
+                    imageUrl = product.imageUri
                 )
             }
 
@@ -128,6 +129,7 @@ class TransactionViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
+                // Save Transaction
                 val transaction = Transaction(
                     items = state.selectedProducts,
                     subtotal = state.subtotal,
@@ -137,6 +139,18 @@ class TransactionViewModel(
                     changeAmount = state.changeAmount
                 )
                 transactionRepository.insertTransaction(transaction)
+
+                // Update Stock
+                state.selectedProducts.forEach { item ->
+                    val product = state.products.find { it.id == item.productId }
+                    if (product != null) {
+                        val updatedProduct = product.copy(
+                            stock = (product.stock - item.quantity).coerceAtLeast(0)
+                        )
+                        noteRepository.updateNote(updatedProduct)
+                    }
+                }
+
                 _uiState.update { it.copy(isSuccess = true, isLoading = false) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message, isLoading = false) }

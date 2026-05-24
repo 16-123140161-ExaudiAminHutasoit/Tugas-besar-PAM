@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -39,9 +40,18 @@ fun HomeScreen(
     onNavigateToHistory: () -> Unit,
     onNavigateToReport: () -> Unit,
     onNavigateToAI: () -> Unit,
+    onLoggedOut: () -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                HomeEvent.LoggedOut -> onLoggedOut()
+            }
+        }
+    }
     
     val greenPrimary = Color(0xFF16A34A)
     val greenLight = Color(0xFFDCFCE7)
@@ -70,13 +80,22 @@ fun HomeScreen(
                             fontWeight = FontWeight.Bold
                         )
                     )
-                    IconButton(onClick = onNavigateToAI) {
-                        Icon(
-                            imageVector = Icons.Default.AutoAwesome,
-                            contentDescription = "Smart Assistant",
-                            tint = Color.White,
-                            modifier = Modifier.size(28.dp)
-                        )
+                    Row {
+                        IconButton(onClick = onNavigateToAI) {
+                            Icon(
+                                imageVector = Icons.Default.AutoAwesome,
+                                contentDescription = "Smart Assistant",
+                                tint = Color.White,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                        IconButton(onClick = { viewModel.logout() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.Logout,
+                                contentDescription = "Logout",
+                                tint = Color.White
+                            )
+                        }
                     }
                 }
             }

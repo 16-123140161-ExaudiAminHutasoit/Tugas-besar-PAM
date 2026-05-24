@@ -2,6 +2,7 @@ package com.example.mapenumkm.presentation.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mapenumkm.data.local.datastore.UserPreferences
 import com.example.mapenumkm.domain.model.Note
 import com.example.mapenumkm.domain.model.NoteCategory
 import com.example.mapenumkm.domain.repository.NoteRepository
@@ -11,9 +12,12 @@ import com.example.mapenumkm.domain.usecase.NoteSortBy
 import com.example.mapenumkm.domain.usecase.SearchNotesUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -26,8 +30,12 @@ class HomeViewModel(
     private val getAllNotesUseCase: GetAllNotesUseCase,
     private val searchNotesUseCase: SearchNotesUseCase,
     private val deleteNoteUseCase: DeleteNoteUseCase,
-    private val repository: NoteRepository
+    private val repository: NoteRepository,
+    private val userPreferences: UserPreferences
 ) : ViewModel() {
+    
+    private val _events = MutableSharedFlow<HomeEvent>()
+    val events: SharedFlow<HomeEvent> = _events.asSharedFlow()
     
     private val _searchQuery = MutableStateFlow("")
     private val _selectedCategory = MutableStateFlow<NoteCategory?>(null)
@@ -110,6 +118,17 @@ class HomeViewModel(
             repository.deleteNotes(noteIds)
         }
     }
+
+    fun logout() {
+        viewModelScope.launch {
+            userPreferences.setLoggedIn(false)
+            _events.emit(HomeEvent.LoggedOut)
+        }
+    }
+}
+
+sealed interface HomeEvent {
+    data object LoggedOut : HomeEvent
 }
 
 sealed interface HomeUiState {

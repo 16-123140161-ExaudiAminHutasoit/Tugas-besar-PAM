@@ -1,6 +1,7 @@
 package com.example.mapenumkm.data.repository
 
 import com.example.mapenumkm.data.local.NoteDatabase
+import com.example.mapenumkm.data.local.GetTransactionItems
 import com.example.mapenumkm.data.local.entity.toDomain
 import com.example.mapenumkm.domain.model.Transaction
 import com.example.mapenumkm.domain.repository.TransactionRepository
@@ -21,11 +22,11 @@ class TransactionRepositoryImpl(
         return queries.getAllTransactions().asFlow().mapToList(Dispatchers.IO).map { entities ->
             entities.map { entity ->
                 try {
-                    val items = queries.getTransactionItems(entity.id).executeAsList()
+                    val items: List<GetTransactionItems> = queries.getTransactionItems(entity.id).executeAsList()
                     entity.toDomain(items)
                 } catch (e: Exception) {
-                    // Fallback to empty items if one transaction fails
-                    entity.toDomain(emptyList())
+                    // Fallback to empty items with explicit type
+                    entity.toDomain(emptyList<GetTransactionItems>())
                 }
             }
         }
@@ -49,7 +50,8 @@ class TransactionRepositoryImpl(
                     product_id = item.productId,
                     product_name = item.productName,
                     product_price = item.productPrice,
-                    quantity = item.quantity.toLong()
+                    quantity = item.quantity.toLong(),
+                    product_image_url = item.imageUrl
                 )
                 // Reduce stock of the product
                 queries.reduceStock(
