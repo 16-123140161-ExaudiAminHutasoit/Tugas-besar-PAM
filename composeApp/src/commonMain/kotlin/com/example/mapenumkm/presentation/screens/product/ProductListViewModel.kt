@@ -3,6 +3,7 @@ package com.example.mapenumkm.presentation.screens.product
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mapenumkm.domain.model.Note
+import com.example.mapenumkm.domain.model.NoteCategory
 import com.example.mapenumkm.domain.repository.NoteRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -12,19 +13,29 @@ class ProductListViewModel(
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
-    val searchQuery = _searchQuery.asStateFlow()
+    private val _selectedCategory = MutableStateFlow<NoteCategory?>(null)
 
     val state: StateFlow<ProductListState> = combine(
         repository.getAllNotes(),
-        _searchQuery
-    ) { notes, query ->
+        _searchQuery,
+        _selectedCategory
+    ) { notes, query, category ->
         ProductListState(
-            products = if (query.isEmpty()) {
-                notes
-            } else {
-                notes.filter { it.title.contains(query, ignoreCase = true) }
+            products = notes.filter { note ->
+                val matchesQuery = if (query.isEmpty()) {
+                    true
+                } else {
+                    note.title.contains(query, ignoreCase = true)
+                }
+                val matchesCategory = if (category == null) {
+                    true
+                } else {
+                    note.category == category
+                }
+                matchesQuery && matchesCategory
             },
-            searchQuery = query
+            searchQuery = query,
+            selectedCategory = category
         )
     }.stateIn(
         scope = viewModelScope,
@@ -34,6 +45,10 @@ class ProductListViewModel(
 
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
+    }
+
+    fun onCategoryChange(category: NoteCategory?) {
+        _selectedCategory.value = category
     }
 
     fun deleteProduct(note: Note) {

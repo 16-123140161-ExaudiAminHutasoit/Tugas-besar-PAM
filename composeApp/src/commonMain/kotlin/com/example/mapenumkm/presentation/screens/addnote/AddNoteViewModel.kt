@@ -137,7 +137,7 @@ data class AddNoteUiState(
     val content: String = "",
     val price: String = "",
     val stock: String = "",
-    val category: NoteCategory = NoteCategory.GENERAL,
+    val category: NoteCategory = NoteCategory.FOOD,
     val imageUri: String? = null,
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,

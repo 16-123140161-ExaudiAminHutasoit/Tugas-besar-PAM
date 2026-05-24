@@ -124,7 +124,6 @@ paddingValues ->
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 24.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
@@ -144,20 +143,6 @@ paddingValues ->
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray
                         )
-                    }
-                    
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f)),
-                        color = Color.White
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Hari ini", style = MaterialTheme.typography.labelLarge)
-                            Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, modifier = Modifier.size(18.dp))
-                        }
                     }
                 }
             }
@@ -214,7 +199,9 @@ paddingValues ->
             when (val state = uiState) {
                 is HomeUiState.Loading -> item { LoadingIndicator() }
                 is HomeUiState.Success -> {
-                    val topProducts = state.notes.sortedByDescending { it.id }.take(3) // Placeholder sorting for "best selling"
+                    val topProducts = state.notes
+                        .sortedByDescending { state.soldCounts[it.id] ?: 0 }
+                        .take(3)
                     if (topProducts.isEmpty()) {
                         item {
                             Text("Belum ada data produk", modifier = Modifier.padding(horizontal = 20.dp), color = Color.Gray)
@@ -223,7 +210,7 @@ paddingValues ->
                         items(topProducts) { product ->
                             ProductItem(
                                 name = product.title,
-                                soldCount = 25, 
+                                soldCount = state.soldCounts[product.id] ?: 0,
                                 price = product.price,
                                 imageUri = product.imageUri,
                                 onClick = { onNavigateToDetail(product.id) }

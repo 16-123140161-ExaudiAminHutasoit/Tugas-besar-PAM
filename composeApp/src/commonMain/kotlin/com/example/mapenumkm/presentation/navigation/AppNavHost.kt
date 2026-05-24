@@ -39,9 +39,11 @@ fun AppNavHost(
 
     if (isLoggedIn == null) return
 
+    val startDestination = if (isLoggedIn == true) Route.Home else Route.Splash
+
     NavHost(
         navController = navController,
-        startDestination = Route.Splash,
+        startDestination = startDestination,
         modifier = modifier
     ) {
         composable<Route.Splash> {
@@ -162,6 +164,9 @@ fun AppNavHost(
                 },
                 onSearchQueryChange = { query ->
                     viewModel.onSearchQueryChange(query)
+                },
+                onCategoryChange = { category ->
+                    viewModel.onCategoryChange(category)
                 }
             )
         }

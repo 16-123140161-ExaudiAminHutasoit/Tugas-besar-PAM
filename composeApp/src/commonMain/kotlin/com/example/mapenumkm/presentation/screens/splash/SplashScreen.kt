@@ -17,7 +17,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mapenumkm.presentation.theme.MaPenTheme
 import kotlinx.coroutines.delay
 import mapenumkm.composeapp.generated.resources.Res
 import mapenumkm.composeapp.generated.resources.logo_mapen
@@ -38,12 +37,9 @@ fun SplashScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFBFBFF)),
+            .background(Color.White),
         contentAlignment = Alignment.Center
     ) {
-        // Background pattern (optional, based on reference showing some light lines at bottom right)
-        // For now focusing on main elements
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -59,7 +55,7 @@ fun SplashScreen(
                         painter = painterResource(Res.drawable.logo_mapen),
                         contentDescription = "MaPen UMKM Logo",
                         modifier = Modifier
-                            .size(240.dp) // Ukuran logo disesuaikan
+                            .size(240.dp)
                             .padding(bottom = 24.dp),
                         contentScale = ContentScale.Fit
                     )

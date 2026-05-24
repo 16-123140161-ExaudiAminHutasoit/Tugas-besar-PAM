@@ -105,7 +105,7 @@ class UserPreferences(
      * Observe default category
      */
     val defaultCategory: Flow<String> = dataStore.data.map { prefs ->
-        prefs[Keys.DEFAULT_CATEGORY] ?: "GENERAL"
+        prefs[Keys.DEFAULT_CATEGORY] ?: "FOOD"
     }
     
     /**
