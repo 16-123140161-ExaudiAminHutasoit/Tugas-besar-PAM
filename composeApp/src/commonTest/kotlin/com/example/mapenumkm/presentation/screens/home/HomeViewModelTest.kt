@@ -1,17 +1,25 @@
 package com.example.mapenumkm.presentation.screens.home
 
 import app.cash.turbine.test
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
+import com.example.mapenumkm.data.local.datastore.UserPreferences
 import com.example.mapenumkm.domain.model.Note
 import com.example.mapenumkm.domain.model.NoteCategory
 import com.example.mapenumkm.domain.model.NoteColor
+import com.example.mapenumkm.domain.model.Transaction
 import com.example.mapenumkm.domain.repository.NoteRepository
+import com.example.mapenumkm.domain.repository.TransactionRepository
 import com.example.mapenumkm.domain.usecase.DeleteNoteUseCase
 import com.example.mapenumkm.domain.usecase.GetAllNotesUseCase
+import com.example.mapenumkm.domain.usecase.NoteSortBy
 import com.example.mapenumkm.domain.usecase.SearchNotesUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -33,21 +41,26 @@ class HomeViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     
     private lateinit var repository: FakeNoteRepository
+    private lateinit var transactionRepository: FakeTransactionRepository
     private lateinit var viewModel: HomeViewModel
 
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         repository = FakeNoteRepository()
+        transactionRepository = FakeTransactionRepository()
+        
         val getAllNotesUseCase = GetAllNotesUseCase(repository)
         val searchNotesUseCase = SearchNotesUseCase(repository)
         val deleteNoteUseCase = DeleteNoteUseCase(repository)
         
         viewModel = HomeViewModel(
-            getAllNotesUseCase,
-            searchNotesUseCase,
-            deleteNoteUseCase,
-            repository
+            getAllNotesUseCase = getAllNotesUseCase,
+            searchNotesUseCase = searchNotesUseCase,
+            deleteNoteUseCase = deleteNoteUseCase,
+            repository = repository,
+            transactionRepository = transactionRepository,
+            userPreferences = UserPreferences(FakeDataStore())
         )
     }
 
@@ -151,25 +164,41 @@ class FakeNoteRepository : NoteRepository {
     private var nextId = 1L
     
     override fun getAllNotes(): Flow<List<Note>> = notes
-    override fun getPinnedNotes(): Flow<List<Note>> = notes.map { it.filter { n -> n.isPinned } }
-    override fun getNotesByCategory(category: NoteCategory): Flow<List<Note>> = notes.map { it.filter { n -> n.category == category } }
-    override fun searchNotes(query: String): Flow<List<Note>> = notes.map { it.filter { n -> n.title.contains(query, true) || n.content.contains(query, true) } }
-    override fun getNoteById(id: Long): Flow<Note?> = notes.map { it.find { n -> n.id == id } }
+    override fun getPinnedNotes(): Flow<List<Note>> = notes.map { list -> list.filter { n -> n.isPinned } }
+    override fun getNotesByCategory(category: NoteCategory): Flow<List<Note>> = notes.map { list -> list.filter { n -> n.category == category } }
+    override fun searchNotes(query: String): Flow<List<Note>> = notes.map { list -> list.filter { n -> n.title.contains(query, true) || n.content.contains(query, true) } }
+    override fun getNoteById(id: Long): Flow<Note?> = notes.map { list -> list.find { n -> n.id == id } }
     override suspend fun insertNote(note: Note): Long {
         val id = if (note.id == 0L) nextId++ else note.id
         notes.update { it + note.copy(id = id) }
         return id
     }
     override suspend fun updateNote(note: Note) {
-        notes.update { it.map { n -> if (n.id == note.id) note else n } }
+        notes.update { list -> list.map { n -> if (n.id == note.id) note else n } }
     }
     override suspend fun deleteNote(id: Long) {
-        notes.update { it.filter { n -> n.id != id } }
+        notes.update { list -> list.filter { n -> n.id != id } }
     }
     override suspend fun togglePinNote(id: Long) {
-        notes.update { it.map { n -> if (n.id == id) n.copy(isPinned = !n.isPinned) else n } }
+        notes.update { list ->
+            list.map { n ->
+                if (n.id == id) n.copy(isPinned = !n.isPinned) else n 
+            }
+        }
     }
     override suspend fun deleteNotes(ids: List<Long>) {
-        notes.update { it.filter { n -> n.id !in ids } }
+        notes.update { list -> list.filter { n -> n.id !in ids } }
     }
+}
+
+class FakeTransactionRepository : TransactionRepository {
+    private val transactions = MutableStateFlow<List<Transaction>>(emptyList())
+    override fun getAllTransactions(): Flow<List<Transaction>> = transactions
+    override suspend fun insertTransaction(transaction: Transaction): Long = 0L
+    override suspend fun deleteTransaction(id: Long) {}
+}
+
+class FakeDataStore : DataStore<Preferences> {
+    override val data: Flow<Preferences> = flowOf(emptyPreferences())
+    override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences = emptyPreferences()
 }
