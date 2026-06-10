@@ -1,3 +1,4 @@
+
 ![Build](https://img.shields.io/badge/Build-Passing-success?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Android-green?style=flat-square)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.0-purple?style=flat-square)
@@ -11,9 +12,9 @@
 >
 > 📱 **Demo Aplikasi**
 >
-> ▶️ **[Tonton Video Demo Aplikasi di Sini](#)**
+> ▶️ **[Tonton Video Demo Aplikasi di Sini](https://youtu.be/iDGt6VhbgqY)**
 >
-> *(Klik tautan di atas untuk memutar video demo aplikasi langsung di GitHub)*
+> *(Klik tautan di atas untuk memutar video demo aplikasi langsung di YouTube)*
 
 MaPen UMKM adalah aplikasi manajemen penjualan berbasis Android yang dirancang untuk membantu pelaku **Usaha Mikro, Kecil, dan Menengah (UMKM)** dalam mengelola transaksi, produk, stok, serta laporan penjualan secara digital.
 
@@ -100,43 +101,12 @@ Aplikasi dirancang dengan tampilan modern, intuitif, dan mudah digunakan sehingg
 | 📜 Riwayat Transaksi | Histori transaksi |
 | 📈 Laporan Penjualan | Laporan berdasarkan periode |
 | 🤖 Smart Business Assistant | Insight dan rekomendasi bisnis |
-
----
-
-# 🧭 User Flow
-
-```text
-Start
- │
- ▼
-Login
- │
- ▼
-Dashboard
- │
- ├── Manajemen Produk
- │
- ├── Transaksi Penjualan
- │      │
- │      ▼
- │  Riwayat Transaksi
- │
- ▼
-Laporan Penjualan
- │
- ▼
-Smart Business Assistant
- │
- ▼
-End
-```
-
 ---
 
 # 🛠️ Tech Stack
 
 | Technology | Keterangan |
-|------------|------------|
+| --- | --- |
 | Kotlin | Bahasa Pemrograman Utama |
 | Jetpack Compose | Framework UI Android |
 | Material Design 3 | Design System |
@@ -170,6 +140,7 @@ composeApp/
                 │   │   └── login/
                 │   └── theme/
                 └── App.kt
+
 ```
 
 ---
@@ -178,25 +149,25 @@ composeApp/
 
 ### Design Principles
 
-- ✨ Modern
-- 🧹 Clean
-- 📱 Mobile First
-- 🚀 User Friendly
-- 🎯 Focused on UMKM Needs
+* ✨ Modern
+* 🧹 Clean
+* 📱 Mobile First
+* 🚀 User Friendly
+* 🎯 Focused on UMKM Needs
 
 ### Components
 
-- Card Layout
-- Rounded Button
-- Search Bar
-- Bottom Navigation
-- Dashboard Analytics
-- Responsive Layout
+* Card Layout
+* Rounded Button
+* Search Bar
+* Bottom Navigation
+* Dashboard Analytics
+* Responsive Layout
 
 ### Color Palette
 
 | Color | Hex |
-|---------|---------|
+| --- | --- |
 | Green Primary | `#16A34A` |
 | Green Dark | `#15803D` |
 | Green Light | `#DCFCE7` |
@@ -222,6 +193,7 @@ Stok Menipis : Kopi Susu (3 pcs)
 
 💡 Rekomendasi:
 Segera lakukan restock Kopi Susu agar tidak kehabisan stok.
+
 ```
 
 Fitur ini dirancang agar tetap ringan, mudah diimplementasikan, dan realistis untuk tahap awal pengembangan aplikasi.
@@ -233,26 +205,39 @@ Fitur ini dirancang agar tetap ringan, mudah diimplementasikan, dan realistis un
 ### Clone Repository
 
 ```bash
-git clone https://github.com/username/mapen-umkm.git
+git clone [https://github.com/username/mapen-umkm.git](https://github.com/username/mapen-umkm.git)
+
 ```
 
 ### Open Project
 
 ```bash
 Buka project menggunakan Android Studio
+
 ```
 
 ### Sync Gradle
 
 ```bash
 Tunggu proses Gradle Sync selesai
+
 ```
 
 ### Run Application
 
 ```bash
 Jalankan pada Emulator atau Android Device
+
 ```
+
+---
+
+# 🧪 Hasil Pengujian (Code Coverage)
+
+Pengujian unit dilakukan untuk memastikan keandalan fungsi-fungsi inti aplikasi. Berikut adalah ringkasan hasil *code coverage* dari modul `composeApp`:
+
+![Hasil Pengujian](./composeApp/src/commonMain/composeResources/drawable/testing.jpeg)
+
 
 ---
 
@@ -260,11 +245,11 @@ Jalankan pada Emulator atau Android Device
 
 Tujuan utama MaPen UMKM adalah membantu pelaku UMKM dalam:
 
-- Mengelola transaksi penjualan
-- Mengelola data produk
-- Mengontrol stok barang
-- Melihat laporan penjualan
-- Mendapatkan insight bisnis sederhana
+* Mengelola transaksi penjualan
+* Mengelola data produk
+* Mengontrol stok barang
+* Melihat laporan penjualan
+* Mendapatkan insight bisnis sederhana
 
 Dengan pendekatan modern menggunakan Kotlin dan Jetpack Compose, aplikasi ini diharapkan menjadi solusi digital yang sederhana namun bermanfaat bagi pelaku UMKM.
 
@@ -278,6 +263,6 @@ Aplikasi ini dirancang untuk membantu UMKM melakukan digitalisasi proses bisnis 
 
 ---
 
+```
 
-
-
+```
