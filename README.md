@@ -236,7 +236,8 @@ Jalankan pada Emulator atau Android Device
 
 Pengujian unit dilakukan untuk memastikan keandalan fungsi-fungsi inti aplikasi. Berikut adalah ringkasan hasil *code coverage* dari modul `composeApp`:
 
-![Hasil Pengujian](./composeApp/src/commonMain/composeResources/drawable/testing.jpeg)
+<img width="1600" height="623" alt="testing" src="https://github.com/user-attachments/assets/0d21df70-4466-4917-ad9e-191b9fa2fcc1" />
+
 
 
 ---
